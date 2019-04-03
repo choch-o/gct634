@@ -23,8 +23,6 @@ s_contrast_path = 's_contrast/'
 crm_stft_path = 'crm_stft/'
 crm_cqt_path = 'crm_cqt/'
 crm_cens_path = 'crm_cens/'
-rms_path = 'rms/'
-tonnetz_path = 'tonnetz/'
 
 MFCC_DIM = 13
 NUM_STATS = 3
