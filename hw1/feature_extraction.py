@@ -22,10 +22,14 @@ s_contrast_path = 's_contrast/'
 crm_stft_path = 'crm_stft/'
 crm_cqt_path = 'crm_cqt/'
 crm_cens_path = 'crm_cens/'
+rms_path = 'rms/'
+tonnetz_path = 'tonnetz/'
+
 feature_paths = [mfcc_path, mfcc_cqt_path, zcr_path,
         s_centroid_path, s_rolloff_path, s_flatness_path,
         s_bandwidth_path, s_contrast_path,
-        crm_stft_path, crm_cqt_path, crm_cens_path]
+        crm_stft_path, crm_cqt_path, crm_cens_path,
+        rms_path, tonnetz_path]
 
 MFCC_DIM = 13
 SAMPLING_RATE = 22050
@@ -90,14 +94,17 @@ def extract_features(dataset='train', n_fft=512, hop_length=128, n_mels=40, dct_
         crm_cqt = librosa.feature.chroma_cqt(C=C, sr=sr)
         crm_cens = librosa.feature.chroma_cens(C=C, sr=sr)
 
+        rms = librosa.feature.rms(S=S)
+        tonnetz = librosa.feature.tonnetz(y=librosa.effects.harmonic(y), sr=sr)
+
         features = [mfcc, mfcc_cqt, zcr, s_centroid, s_rolloff, s_flatness,
-                s_bandwidth, s_contrast, crm_stft, crm_cqt, crm_cens]
+                s_bandwidth, s_contrast, crm_stft, crm_cqt, crm_cens, rms, tonnetz]
 
         # save mfcc as a file
         file_name = file_name.replace('.wav','.npy')
 
         for feature in range(len(features)):
-            save_file = './' + str(n_fft) + '/' + str(hop_length) + '/' + str(n_mels) + '/' + str(dct_type) + '/' + feature_paths[feature] + file_name
+            save_file = './rms_tonnetz' + str(n_fft) + '/' + str(hop_length) + '/' + str(n_mels) + '/' + str(dct_type) + '/' + feature_paths[feature] + file_name
             if not os.path.exists(os.path.dirname(save_file)):
                 os.makedirs(os.path.dirname(save_file))
             np.save(save_file, features[feature])

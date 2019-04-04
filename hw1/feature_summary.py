@@ -1,8 +1,8 @@
-# GCT634 (2018) HW1
+# GCT634 (2019) HW1
 #
-# Mar-18-2018: initial version
+# Apr-04-2019: Best accuracy 96%
 #
-# Juhan Nam
+# Hyunsung Cho
 #
 
 import sys
@@ -23,10 +23,13 @@ s_contrast_path = 's_contrast/'
 crm_stft_path = 'crm_stft/'
 crm_cqt_path = 'crm_cqt/'
 crm_cens_path = 'crm_cens/'
-
+"""
+rms_path = 'rms/'
+tonnetz_path = 'tonnetz/'
+"""
 MFCC_DIM = 13
 NUM_STATS = 3
-FEATURE_DIM = 2 * 6 * MFCC_DIM + NUM_STATS * 5 + NUM_STATS * 7 + NUM_STATS * 12 * 3
+FEATURE_DIM = NUM_STATS * 6  * MFCC_DIM + NUM_STATS * 5 + NUM_STATS * 7 + NUM_STATS * 12 * 3 #+ NUM_STATS + NUM_STATS * 6
 
 def combine_features(dataset='train', feature_path='./'):
     f = open(data_path + dataset + '_list.txt', 'r')
@@ -51,8 +54,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(mfcc, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(mfcc, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(mfcc)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(mfcc)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(mfcc, axis=1)
+        mat_i += MFCC_DIM
 
         # delta_mfcc
         delta = librosa.feature.delta(mfcc)
@@ -60,8 +69,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(delta, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(delta, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(delta)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(delta)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(delta, axis=1)
+        mat_i += MFCC_DIM
 
         # double_delta_mfcc
         double_delta = librosa.feature.delta(mfcc, order=2)
@@ -70,8 +85,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(double_delta, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(double_delta, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(double_delta)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(double_delta)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(double_delta, axis=1)
+        mat_i += MFCC_DIM
 
         # load mfcc_cqt file
         mfcc_cqt_file = feature_path + mfcc_cqt_path + file_name
@@ -82,8 +103,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(mfcc_cqt, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(mfcc_cqt, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(mfcc_cqt)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(mfcc_cqt)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(mfcc_cqt, axis=1)
+        mat_i += MFCC_DIM
 
         # delta_mfcc_cqt
         delta = librosa.feature.delta(mfcc_cqt)
@@ -91,8 +118,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(delta, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(delta, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(delta)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(delta)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(delta, axis=1)
+        mat_i += MFCC_DIM
 
         # double_delta_mfcc
         double_delta = librosa.feature.delta(mfcc_cqt, order=2)
@@ -101,8 +134,14 @@ def combine_features(dataset='train', feature_path='./'):
         mat_i += MFCC_DIM
         feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.std(double_delta, axis=1)
         mat_i += MFCC_DIM
-        # feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(double_delta, axis=1)
-        # mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.min(double_delta)
+        mat_i += MFCC_DIM
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.max(double_delta)
+        mat_i += MFCC_DIM
+        """
+        feature_mat[mat_i:mat_i+MFCC_DIM, i] = np.var(double_delta, axis=1)
+        mat_i += MFCC_DIM
 
         index = mat_i
         # load zcr file
@@ -111,31 +150,51 @@ def combine_features(dataset='train', feature_path='./'):
         feature_mat[index:++index, i] = np.mean(zcr, axis=1)
         feature_mat[index:++index, i] = np.std(zcr, axis=1)
         feature_mat[index:++index, i] = np.var(zcr, axis=1)
+        """
+        feature_mat[index:++index, i] = np.min(zcr)
+        feature_mat[index:++index, i] = np.max(zcr)
 
+        """
         # load spectral features
         sc_file = feature_path + s_centroid_path + file_name
         sc = np.load(sc_file)
         feature_mat[index:++index, i] = np.mean(sc, axis=1)
         feature_mat[index:++index, i] = np.std(sc, axis=1)
         feature_mat[index:++index, i] = np.var(sc, axis=1)
+        """
+        feature_mat[index:++index, i] = np.min(sc)
+        feature_mat[index:++index, i] = np.max(sc)
+        """
 
         sr_file = feature_path + s_rolloff_path + file_name
         sr = np.load(sr_file)
         feature_mat[index:++index, i] = np.mean(sr, axis=1)
         feature_mat[index:++index, i] = np.std(sr, axis=1)
-        feature_mat[index:++index, i] = np.var(sc, axis=1)
+        feature_mat[index:++index, i] = np.var(sr, axis=1)
+        """
+        feature_mat[index:++index, i] = np.min(sr)
+        feature_mat[index:++index, i] = np.max(sr)
+        """
 
         sf_file = feature_path + s_flatness_path + file_name
         sf = np.load(sf_file)
         feature_mat[index:++index, i] = np.mean(sf, axis=1)
         feature_mat[index:++index, i] = np.std(sf, axis=1)
-        feature_mat[index:++index, i] = np.var(sc, axis=1)
+        feature_mat[index:++index, i] = np.var(sf, axis=1)
+        """
+        feature_mat[index:++index, i] = np.min(sf)
+        feature_mat[index:++index, i] = np.max(sf)
+        """
 
         sb_file = feature_path + s_bandwidth_path + file_name
         sb = np.load(sb_file)
         feature_mat[index:++index, i] = np.mean(sb, axis=1)
         feature_mat[index:++index, i] = np.std(sb, axis=1)
-        feature_mat[index:++index, i] = np.var(sc, axis=1)
+        feature_mat[index:++index, i] = np.var(sb, axis=1)
+        """
+        feature_mat[index:++index, i] = np.min(sb)
+        feature_mat[index:++index, i] = np.max(sb)
+        """
 
         scr_file = feature_path + s_contrast_path + file_name
         scr = np.load(scr_file)
@@ -145,6 +204,12 @@ def combine_features(dataset='train', feature_path='./'):
         index += 7
         feature_mat[index:index+7, i] = np.var(scr, axis=1)
         index += 7
+        """
+        feature_mat[index:index+7, i] = np.min(scr)
+        index += 7
+        feature_mat[index:index+7, i] = np.max(scr)
+        index += 7
+        """
 
         # load chroma features
         crm_stft_file = feature_path + crm_stft_path + file_name
@@ -155,6 +220,12 @@ def combine_features(dataset='train', feature_path='./'):
         index += 12
         feature_mat[index:index+12, i] = np.var(crm_stft, axis=1)
         index += 12
+        """
+        feature_mat[index:index+12, i] = np.min(crm_stft)
+        index += 12
+        feature_mat[index:index+12, i] = np.max(crm_stft)
+        index += 12
+        """
 
         crm_cqt_file = feature_path + crm_cqt_path + file_name
         crm_cqt = np.load(crm_cqt_file)
@@ -164,6 +235,12 @@ def combine_features(dataset='train', feature_path='./'):
         index += 12
         feature_mat[index:index+12, i] = np.var(crm_cqt, axis=1)
         index += 12
+        """
+        feature_mat[index:index+12, i] = np.min(crm_cqt)
+        index += 12
+        feature_mat[index:index+12, i] = np.max(crm_cqt)
+        index += 12
+        """
 
         crm_cens_file = feature_path + crm_cens_path + file_name
         crm_cens = np.load(crm_cens_file)
@@ -173,7 +250,29 @@ def combine_features(dataset='train', feature_path='./'):
         index += 12
         feature_mat[index:index+12, i] = np.var(crm_cens, axis=1)
         index += 12
+        """
+        feature_mat[index:index+12, i] = np.min(crm_cens)
+        index += 12
+        feature_mat[index:index+12, i] = np.max(crm_cens)
+        index += 12
+        """
 
+        """
+        rms_file = feature_path + rms_path + file_name
+        rms = np.load(rms_file)
+        feature_mat[index:++index, i] = np.mean(rms, axis=1)
+        feature_mat[index:++index, i] = np.std(rms, axis=1)
+        feature_mat[index:++index, i] = np.var(rms, axis=1)
+
+        tonnetz_file = feature_path + tonnetz_path + file_name
+        tonnetz = np.load(tonnetz_file)
+        feature_mat[index:index+6, i] = np.mean(tonnetz, axis=1)
+        index += 6
+        feature_mat[index:index+6, i] = np.std(tonnetz, axis=1)
+        index += 6
+        feature_mat[index:index+6, i] = np.var(tonnetz, axis=1)
+        index += 6
+        """
         i = i + 1
     f.close()
     return feature_mat

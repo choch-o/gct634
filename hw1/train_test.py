@@ -1,8 +1,8 @@
-# GCT634 (2018) HW1
+# GCT634 (2019) HW1
 #
-# Mar-18-2018: initial version
+# Apr-04-2019: Best accuracy 96%
 #
-# Juhan Nam
+# Hyunsung Cho
 #
 
 import sys
@@ -13,10 +13,12 @@ from feature_summary import *
 
 from sklearn.svm import SVC as svc
 from sklearn.model_selection import RepeatedKFold
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import LeaveOneOut
 
 MFCC_DIM = 13
 NUM_STATS = 3
-FEATURE_DIM = 2 * 6 * MFCC_DIM + NUM_STATS * 5 + NUM_STATS * 7 + NUM_STATS * 12 * 3
+FEATURE_DIM = NUM_STATS * 6 * MFCC_DIM + NUM_STATS * 5 + NUM_STATS * 7 + NUM_STATS * 12 * 3 # + NUM_STATS + NUM_STATS * 6
 
 def train_model(train_X, train_Y, valid_X, valid_Y, hyper_param1):
 
@@ -49,34 +51,45 @@ def run_test(feature_path='./'):
     test_Y = np.repeat(cls, 20)
 
     # Repeated 6-fold
-    kf = RepeatedKFold(n_splits=6, n_repeats=10, random_state=None)
     kfX = np.concatenate((train_X.T, valid_X.T))
     kfY = np.concatenate([train_Y, valid_Y])
-    for train_index, valid_index in kf.split(kfX):
-        train_X, valid_X = kfX[train_index], kfX[valid_index]
-        train_Y, valid_Y = kfY[train_index], kfY[valid_index]
 
-    train_X = train_X.T
-    valid_X = valid_X.T
-
-    # feature normalizaiton
-    train_X = train_X.T
-    train_X_mean = np.mean(train_X, axis=0)
-    train_X = train_X - train_X_mean
-    train_X_std = np.std(train_X, axis=0)
-    train_X = train_X / (train_X_std + 1e-5)
-
-    valid_X = valid_X.T
-    valid_X = valid_X - train_X_mean
-    valid_X = valid_X/(train_X_std + 1e-5)
-
-    # training model
-    alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+    kf = RepeatedKFold(n_splits=6, n_repeats=10, random_state=None)
+    skf = StratifiedKFold(n_splits=6, shuffle=False, random_state=None)
+    loo = LeaveOneOut()
 
     model = []
     valid_acc = []
-    for a in alphas:
-        clf, acc = train_model(train_X, train_Y, valid_X, valid_Y, a)
+    # for train_index, valid_index in kf.split(kfX):
+    for train_index, valid_index in skf.split(kfX, kfY, None):
+    # for train_index, valid_index in loo.split(kfX):
+        train_X, valid_X = kfX[train_index], kfX[valid_index]
+        train_Y, valid_Y = kfY[train_index], kfY[valid_index]
+
+        train_X = train_X.T
+        valid_X = valid_X.T
+
+        # feature normalizaiton
+        train_X = train_X.T
+        train_X_mean = np.mean(train_X, axis=0)
+        train_X = train_X - train_X_mean
+        train_X_std = np.std(train_X, axis=0)
+        train_X = train_X / (train_X_std + 1e-5)
+
+        valid_X = valid_X.T
+        valid_X = valid_X - train_X_mean
+        valid_X = valid_X/(train_X_std + 1e-5)
+
+        # training model
+        """
+        alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+        for a in alphas:
+            clf, acc = train_model(train_X, train_Y, valid_X, valid_Y, a)
+            model.append(clf)
+            valid_acc.append(acc)
+            valid_test_acc_str += str(acc) + ','
+        """
+        clf, acc = train_model(train_X, train_Y, valid_X, valid_Y, 0)
         model.append(clf)
         valid_acc.append(acc)
         valid_test_acc_str += str(acc) + ','
