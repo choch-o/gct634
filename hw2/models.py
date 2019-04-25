@@ -11,24 +11,24 @@ class Baseline(nn.Module):
 		super(Baseline, self).__init__()
 
 		self.conv0 = nn.Sequential(
-			nn.Conv1d(hparams.num_mels, 32, kernel_size=8, stride=1, padding=0),
+			nn.Conv1d(hparams.num_mels, 32, kernel_size=4, stride=1, padding=0),
 			nn.BatchNorm1d(32),
 			nn.ReLU(),
-			nn.MaxPool1d(8, stride=8)
+			nn.MaxPool1d(4, stride=4)
 		)
 
 		self.conv1 = nn.Sequential(
-			nn.Conv1d(32, 32, kernel_size=8, stride=1, padding=0),
+			nn.Conv1d(32, 32, kernel_size=4, stride=1, padding=0),
 			nn.BatchNorm1d(32),
 			nn.ReLU(),
-			nn.MaxPool1d(8, stride=8)
+			nn.MaxPool1d(4, stride=4)
 		)
 
 		self.conv2 = nn.Sequential(
-			nn.Conv1d(32, 64, kernel_size=4, stride=1, padding=0),
+			nn.Conv1d(32, 64, kernel_size=2, stride=1, padding=0),
 			nn.BatchNorm1d(64),
 			nn.ReLU(),
-			nn.MaxPool1d(4, stride=4)
+			nn.MaxPool1d(2, stride=2)
 		)
 
 		self.linear = nn.Linear(192, len(hparams.genres))
