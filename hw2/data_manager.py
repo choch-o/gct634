@@ -35,7 +35,7 @@ def load_dataset(set_name, hparams):
 	for root, dirs, files in os.walk(dataset_path):
 		for file in files:
 			data = np.load(os.path.join(root, file))
-			label = get_label(file, hparams)
+			label = get_label(root.split('/')[-2], hparams)
 			x.append(data)
 			y.append(label)
 
