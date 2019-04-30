@@ -17,8 +17,8 @@ def load_list(list_name, hparams):
 
     return file_names
 
-def melspectrogram(file_name, hparams):
-    y, sr = librosa.load(os.path.join(hparams.dataset_path, file_name), hparams.sample_rate)
+def melspectrogram(file_path, file_name, hparams):
+    y, sr = librosa.load(os.path.join(file_path, file_name), hparams.sample_rate)
     S = librosa.stft(y, n_fft=hparams.fft_size, hop_length=hparams.hop_size, win_length=hparams.win_size)
 
     mel_basis = librosa.filters.mel(hparams.sample_rate, n_fft=hparams.fft_size, n_mels=hparams.num_mels)
@@ -28,27 +28,62 @@ def melspectrogram(file_name, hparams):
 
     return mel_S
 
+def resize_array(array, length):
+    resized_array = np.zeros((length, array.shape[1]))
+    if array.shape[0] >= length:
+        resized_array = array[:length]
+    else:
+        resized_array[:array.shape[0]] = array
+
+    return resized_array
+
 def main():
     print('Extracting Feature')
     list_names = ['train_list.txt', 'valid_list.txt', 'test_list.txt']
+    augment_paths = [hparams.dataset_path, hparams.noise_dataset_path, hparams.shift_dataset_path, hparams.stretch_dataset_path]
 
     for list_name in list_names:
         set_name = list_name.replace('_list.txt', '')
         file_names = load_list(list_name, hparams)
 
         for file_name in file_names:
-            feature = melspectrogram(file_name, hparams)
-            feature = feature[:feature.shape[0]-feature.shape[0]%hparams.feature_length]
-            for i in range(0, feature.shape[0], hparams.feature_length):
+            feature = melspectrogram(hparams.dataset_path, file_name, hparams)
+            if set_name == 'test':
+                feature = feature[:feature.shape[0]-feature.shape[0]%hparams.feature_length]
                 save_path = os.path.join(hparams.feature_path, set_name,
                         file_name.split('/')[0], file_name.split('/')[1].split('.')[1])
-                save_name = str(int(i/hparams.feature_length)) + '.npy'
+                save_name = 'test.npy'
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
 
-                np.save(os.path.join(save_path, save_name), feature[i:i+hparams.feature_length].astype(np.float32))
+                np.save(os.path.join(save_path, save_name), feature.astype(np.float32))
                 print(os.path.join(save_path, save_name))
+            elif set_name == 'train':
+                for augment_path in augment_paths:
+                    feature = feature[:feature.shape[0]-feature.shape[0]%hparams.feature_length]
+                    for i in range(0, feature.shape[0], hparams.feature_length):
+                        save_path = os.path.join(hparams.feature_path, set_name,
+                                file_name.split('/')[0], file_name.split('/')[1].split('.')[1])
+                        if len(augment_path.split('_')) > 1:
+                            save_name = augment_path.split('_')[1] + str(int(i/hparams.feature_length)) + '.npy'
+                        else:
+                            save_name = str(int(i/hparams.feature_length)) + '.npy'
+                        if not os.path.exists(save_path):
+                            os.makedirs(save_path)
 
+                        np.save(os.path.join(save_path, save_name), feature[i:i+hparams.feature_length].astype(np.float32))
+                        print(os.path.join(save_path, save_name))
+            else:
+                feature = feature[:feature.shape[0]-feature.shape[0]%hparams.feature_length]
+                for i in range(0, feature.shape[0], hparams.feature_length):
+                    save_path = os.path.join(hparams.feature_path, set_name,
+                            file_name.split('/')[0], file_name.split('/')[1].split('.')[1])
+                    save_name = str(int(i/hparams.feature_length)) + '.npy'
+                    if not os.path.exists(save_path):
+                        os.makedirs(save_path)
+
+                    np.save(os.path.join(save_path, save_name), feature[i:i+hparams.feature_length].astype(np.float32))
+                    print(os.path.join(save_path, save_name))
     print('finished')
 
 if __name__ == '__main__':
