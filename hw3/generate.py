@@ -33,20 +33,27 @@ def generate_sequence(model, sequence_length):
     hidden = init_hidden
     output = init_output
     # TODO: Fill in below
-    outputs = None
+    # make empty list where output will be gathered
+    outputs = []
 
     for step in range(sequence_length - 1):
       # TODO: Fill in below
-      pred, hidden = None
+      pred, hidden = model(x=output, hidden=hidden)
 
-      # TODO: Fill in below
-      # Hint: output: torch.LongTensor([index]). index=index of largest value in pred.
-      output = None
+      #######################################
+      # we changed here to get better output results. (argmax sampling -> random sampling)
+      # if you are interested, change this into argmax, and see the difference.
+      # output = None  <- before
+
+      out_dist = pred.data.view(-1).exp()
+      output = torch.multinomial(out_dist, 1)
+      #######################################
 
       outputs.append(output.cpu().numpy()[0])
 
     # TODO: Fill in below
-    return None
+    # return generated sequence
+    return outputs
 
 
 def indices_to_midi(indices, save_path=None, init_tempo=130):
@@ -134,10 +141,10 @@ def indices_to_midi(indices, save_path=None, init_tempo=130):
 
 
 if __name__ == '__main__':
-  model = load_model("runs/improvise_RNN_190515-100339/model-128.pt")
+  model = load_model("runs/improvise_RNN_190526-153132/model-512.pt")
   seqs = generate_sequence(model, 30)
   print(seqs)
-  indices_to_midi(seqs, save_path='output/my_music.mid', init_tempo=130)
+  indices_to_midi(seqs, save_path='output/result-512.mid', init_tempo=130)
 
   # to generate random sequence
   # seq_rand = list(np.random.randint(low=0, high=N_DICT, size=(50)))
