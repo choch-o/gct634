@@ -1,4 +1,5 @@
 import os
+# import visualize
 from datetime import datetime
 
 import torch
@@ -55,28 +56,35 @@ def train(logdir, model_name, iterations, checkpoint_interval, batch_size, tempe
         scheduler.step()
         optimizer.zero_grad()
 
-        batch = batch.to(device)  # shape of (batch_size, n_steps)
+        batch = batch.to(device)  # shape of (batch_size, sequence_length)
 
         c_0, h_0 = model.init_hidden(batch.shape[0])
         c_0 = c_0.to(device)
         h_0 = h_0.to(device)
 
         # TODO: Fill in below
-        init_hidden = None
+        init_hidden = (c_0, h_0)
 
         hidden = init_hidden
         loss = 0.0
 
-        for step in range(batch.shape[1] - 1):  # n_steps - 1
+        for step in range(batch.shape[1] - 1):  # sequence_length - 1
           # TODO: Fill in below
-          # Forward model.
-          # x=semgent of batch, corresponds to step,
-          # hidden=state of hidden nodes of last/or initial step
-          pred, hidden = model(x=None, hidden=None)
+          # run a step of training model.
+          # x = semgent of batch, corresponds to current step. shape of (batch_size, 1)
+          x = [batch[i][step] for i in range(batch.shape[0])]
+          x = torch.tensor(x, dtype=torch.long)
+          x = x.to(device)
+          pred, hidden = model(x=x, hidden=hidden)
 
           # TODO: Fill in below
+          # calcuate loss between prediction and the values of next step.
           # Hint: use criterion. See torch.nn.NLLLoss() function
-          loss += None
+
+          x1 = [batch[i][step+1] for i in range(batch.shape[0])]
+          x1 = torch.tensor(x1, dtype=torch.long)
+          x1 = x1.to(device)
+          loss += criterion(pred, x1)
 
         loss.backward()
         optimizer.step()
